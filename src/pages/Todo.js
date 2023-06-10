@@ -4,29 +4,65 @@ import GET_TODOS from "../api/GetToDo";
 import TodoItem from "../components/TodoItem";
 import { useState } from "react";
 import CREATE_TODO from "../api/CreateTodo";
+import UPDATE_TODO from "../api/UpdateTodo";
+import DELETE_TODO from "../api/DeleteTodo";
 
 function Todo() {
   const { loading, error, data, refetch } = useQuery(GET_TODOS);
-  const [ addTodo ] = useMutation(CREATE_TODO);
-  const [ inputTask, setInputTask ] = useState();
+  const [addTodo] = useMutation(CREATE_TODO);
+  const [updateTodo] = useMutation(UPDATE_TODO);
+  const [deleteTodo] = useMutation(DELETE_TODO);
+  const [inputTask, setInputTask] = useState();
 
   const handleInputTaskChange = (e) => {
     setInputTask(e.target.value);
   };
 
+  const handleUpdateTodo = (id) => {
+    updateTodo({
+      variables: {
+        id: id,
+      },
+    })
+      .then((response) => {
+        console.log("Succes update data");
+        refetch();
+      })
+      .catch((error) => {
+        console.log("Error update data", error);
+      });
+  };
+
+  const handleDeleteTodo = (id) => {
+    deleteTodo({
+      variables: {
+        id: id,
+      },
+    })
+      .then((response) => {
+        console.log("Succes delete data");
+        refetch();
+      })
+      .catch((error) => {
+        console.log("Error delete data", error);
+      });
+  };
+
   const handleSubmitTask = () => {
-        addTodo({
-          variables: {
-            completed : false,
-            task: inputTask
-          }
-        }).then((response) => {
-          console.log("Succes input data");
-          refetch()
-        }).catch((error) => {
-          console.log("Error input data", error);
-          // return <p>Error : {error}</p>;
-        })
+    addTodo({
+      variables: {
+        completed: false,
+        task: inputTask,
+      },
+    })
+      .then((response) => {
+        console.log("Succes input data");
+        refetch();
+      })
+      .catch((error) => {
+        console.log("Error input data", error);
+        // return <p>Error : {error}</p>;
+      });
   };
 
   if (loading) return <p>Loading....</p>;
@@ -58,7 +94,11 @@ function Todo() {
       <hr class="mt-4 mb-8 ml-12 mr-12"></hr>
       <ol class="pl-16 pr-16">
         {data.todo.map((todo) => (
-          <TodoItem todo={todo}></TodoItem>
+          <TodoItem
+            todo={todo}
+            updateTodo={() => handleUpdateTodo(todo.id)}
+            deleteTodo={() => handleDeleteTodo(todo.id)}
+          ></TodoItem>
         ))}
       </ol>
     </div>
