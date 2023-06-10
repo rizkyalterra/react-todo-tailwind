@@ -1,25 +1,58 @@
-import { useQuery } from "@apollo/client";
+import { useQuery, useMutation } from "@apollo/client";
 import Navigation from "../components/Navigation";
 import GET_TODOS from "../api/GetToDo";
 import TodoItem from "../components/TodoItem";
+import { useState } from "react";
+import CREATE_TODO from "../api/CreateTodo";
 
 function Todo() {
-  const { loading, error, data } = useQuery(GET_TODOS);
+  const { loading, error, data, refetch } = useQuery(GET_TODOS);
+  const [ addTodo ] = useMutation(CREATE_TODO);
+  const [ inputTask, setInputTask ] = useState();
 
-  if (loading) return <p>Loading...</p>;
+  const handleInputTaskChange = (e) => {
+    setInputTask(e.target.value);
+  };
+
+  const handleSubmitTask = () => {
+        addTodo({
+          variables: {
+            completed : false,
+            task: inputTask
+          }
+        }).then((response) => {
+          console.log("Succes input data");
+          refetch()
+        }).catch((error) => {
+          console.log("Error input data", error);
+          // return <p>Error : {error}</p>;
+        })
+  };
+
+  if (loading) return <p>Loading....</p>;
   if (error) return <p>Error : {error.message}</p>;
   return (
     <div>
       <Navigation></Navigation>
-      <h2 class="text-4xl font-bold leading-tight pt-12 pl-12 pr-12 pb-2">To Do</h2>
-      <form class="pl-12 pr-12 flex">
+      <h2 class="text-4xl font-bold leading-tight pt-12 pl-12 pr-12 pb-2">
+        To Do
+      </h2>
+      <form class="pl-12 pr-12 flex-col">
         <input
           type="text"
           autoComplete="username"
           className="w-full block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-          placeholder="janesmith"
+          placeholder="input teks"
+          value={inputTask}
+          onChange={handleInputTaskChange}
         />
-        <button type="submit"></button>
+        <button
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          type="submit"
+          onClick={handleSubmitTask}
+        >
+          Submit
+        </button>
       </form>
 
       <hr class="mt-4 mb-8 ml-12 mr-12"></hr>

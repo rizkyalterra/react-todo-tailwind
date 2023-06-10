@@ -1,5 +1,4 @@
 function TodoItem(props) {
-  console.log(props.todo);
   const textStyle = props.todo.completed === true ? "line-through" : "";
   return (
     <li key={props.todo.id} className="mb-4">
